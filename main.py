@@ -21,7 +21,7 @@ def show_all():
     for transaction in transactions:
         print(f"Twoje wszystkie transakcje:")
         print(f"ID transakcji: {transaction['id']}")
-        print(f"Kwota: {transaction['mount']}")
+        print(f"Kwota: {transaction['amount']}")
         print(f"Kategoria: {transaction['category_type']}")
         print(f"Typ: {transaction['transaction_type']}")
         print(f"Data: {transaction['transaction_date']}")
@@ -62,3 +62,25 @@ def edit_transaction():
                 break
             else:
                 print("Nie ma takiej wartości!")
+
+def show_incomes():
+    print(f"Twoje wszystkie WPŁATY:\n")
+    for transaction in transactions:
+        if transaction["transaction_type"] == "wpłata":
+            print(f"ID transakcji: {transaction['id']}")
+            print(f"Kwota: {transaction['amount']}")
+            print(f"Kategoria: {transaction['category_type']}")
+            print(f"Typ: {transaction['transaction_type']}")
+            print(f"Data: {transaction['transaction_date']}")
+            print("----------------------")
+
+def show_expenses():
+    print("Twoje wszystkie WYDATKI:\n")
+    for transaction in transactions:
+        if transaction["transaction_type"] == "wydatek":
+            print(f"ID transakcji: {transaction['id']}")
+            print(f"Kwota: {transaction['amount']}")
+            print(f"Kategoria: {transaction['category_type']}")
+            print(f"Typ: {transaction['transaction_type']}")
+            print(f"Data: {transaction['transaction_date']}")
+            print("----------------------")
