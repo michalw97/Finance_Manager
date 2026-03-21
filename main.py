@@ -84,3 +84,13 @@ def show_expenses():
             print(f"Typ: {transaction['transaction_type']}")
             print(f"Data: {transaction['transaction_date']}")
             print("----------------------")
+
+def show_balance():
+    total_balance = 0
+
+    for transaction in transactions:
+        if transaction["transaction_type"] == "wpłata":
+            total_balance += transaction["amount"]
+        elif transaction["transaction_type"] == "wydatek":
+            total_balance -= transaction["amount"]
+    print(f"Suma Twoich wpłat i wydatków: {total_balance}")
