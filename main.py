@@ -3,9 +3,12 @@ import json
 transactions = []
 
 def load_data():
-    global transactions
-    with open('transactions.json', 'r') as f:
-        transactions = json.load(f)
+    try:
+        global transactions
+        with open('transactions.json', 'r') as f:
+            transactions = json.load(f)
+    except FileNotFoundError:
+        transactions = []
 
 def save_data():
     with open('transactions.json', 'w') as f:
@@ -105,3 +108,37 @@ def show_balance():
         elif transaction["transaction_type"] == "wydatek":
             total_balance -= transaction["amount"]
     print(f"Suma Twoich wpłat i wydatków: {total_balance}")
+
+load_data()
+
+while True:
+    print("1. Dodaj nową transakcję.")
+    print("2. Pokaż wszystkie transakcje.")
+    print("3. Usuń nową transakcję.")
+    print("4. Edytuj transakcję.")
+    print("5. Pokaż wszystkie wpłaty.")
+    print("6. Pokaż wszystkie wydatki.")
+    print("0. Zakończ.")
+
+    user_choice = int(input("Którą opcję wybierasz?: "))
+
+    if user_choice == 1:
+        add_transaction()
+        save_data()
+    elif user_choice == 2:
+        show_all()
+    elif user_choice == 3:
+        delete_transaction()
+        save_data()
+    elif user_choice == 4:
+        edit_transaction()
+        save_data()
+    elif user_choice == 5:
+        show_incomes()
+    elif user_choice == 6:
+        show_expenses()
+    elif user_choice == 0:
+        break
+    else:
+        print("Wybrana opcja nie istnieje!")
+save_data()
