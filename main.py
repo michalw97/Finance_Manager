@@ -1,4 +1,15 @@
+import json
+
 transactions = []
+
+def load_data():
+    global transactions
+    with open('transactions.json', 'r') as f:
+        transactions = json.load(f)
+
+def save_data():
+    with open('transactions.json', 'w') as f:
+        json.dump(transactions, f)
 
 def add_transaction():
     new_id = len(transactions) + 1
