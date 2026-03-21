@@ -20,11 +20,11 @@ def add_transaction():
 def show_all():
     for transaction in transactions:
         print(f"Twoje wszystkie transakcje:")
-        print(f"ID transakcji: {transaction["id"]}")
-        print(f"Kwota: {transaction["amount"]}")
-        print(f"Kategoria: {transaction["category_type"]}")
-        print(f"Typ: {transaction["transaction_type"]}")
-        print(f"Data: {transaction["transaction_date"]}")
+        print(f"ID transakcji: {transaction['id']}")
+        print(f"Kwota: {transaction['mount']}")
+        print(f"Kategoria: {transaction['category_type']}")
+        print(f"Typ: {transaction['transaction_type']}")
+        print(f"Data: {transaction['transaction_date']}")
         print("----------------------")
 
 def delete_transaction():
@@ -36,6 +36,7 @@ def delete_transaction():
         if transaction["id"] == delete:
             transactions.remove(transaction)
             found = True
+            break
     if not found:
         print("Transakcja nie istnieje!")
 
@@ -58,5 +59,6 @@ def edit_transaction():
                 transaction["transaction_type"] = input("Nowy typ: ")
             elif edit_choice == "data":
                 transaction["transaction_date"] = input("Nowa data: ")
+                break
             else:
                 print("Nie ma takiej wartości!")
