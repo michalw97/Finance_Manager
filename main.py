@@ -16,10 +16,10 @@ def save_data():
 
 def add_transaction():
     new_id = len(transactions) + 1
-    amount = float(input("Podaj kwotę: "))
-    category_type = input("Podaj kategorię: ")
-    transaction_type = input("Podaj typ transakcji: ")
-    transaction_date = input("Podaj datę: ")
+    amount = float(input("Podaj kwotę: ").strip())
+    category_type = input("Podaj kategorię: ").strip()
+    transaction_type = input("Podaj typ transakcji('wpłata'/'wydatek'): ").lower().strip()
+    transaction_date = input("Podaj datę: ").strip()
 
     transaction = {
         "id": new_id,
@@ -32,14 +32,15 @@ def add_transaction():
     transactions.append(transaction)
 
 def show_all():
+    print(f"Twoje wszystkie transakcje:")
     for transaction in transactions:
-        print(f"Twoje wszystkie transakcje:")
+        print()
         print(f"ID transakcji: {transaction['id']}")
         print(f"Kwota: {transaction['amount']}")
         print(f"Kategoria: {transaction['category_type']}")
         print(f"Typ: {transaction['transaction_type']}")
         print(f"Data: {transaction['transaction_date']}")
-        print("----------------------")
+        print("----------------------\n")
 
 def delete_transaction():
     delete = int(input("Którą transakcję chcesz usunąć?(ID)(ta zmiana jest nieodwracalna!): "))
@@ -59,20 +60,20 @@ def edit_transaction():
 
     for transaction in transactions:
         if transaction["id"] == edit:
-            edit_choice = input("Którą wartość chcesz zedytować? (Całość - wpisz całość!)").strip().lower()
+            edit_choice = input("Którą wartość chcesz zedytować? (Całość - wpisz całość!): ").strip().lower()
             if edit_choice == "całość":
-                transaction["amount"] = float(input("Nowa kwota: "))
-                transaction["category_type"] = input("Nowa kategoria: ")
-                transaction["transaction_type"] = input("Nowy typ: ")
-                transaction["transaction_date"] = input("Nowa data: ")
+                transaction["amount"] = float(input("Nowa kwota: ").strip())
+                transaction["category_type"] = input("Nowa kategoria: ").strip()
+                transaction["transaction_type"] = input("Nowy typ: ").lower().strip()
+                transaction["transaction_date"] = input("Nowa data: ").strip()
             elif edit_choice == "kwota":
-                transaction["amount"] = float(input("Nowa kwota: "))
+                transaction["amount"] = float(input("Nowa kwota: ").strip())
             elif edit_choice == "kategoria":
-                transaction["category_type"] = input("Nowa kategoria: ")
+                transaction["category_type"] = input("Nowa kategoria: ").strip()
             elif edit_choice == "typ":
-                transaction["transaction_type"] = input("Nowy typ: ")
+                transaction["transaction_type"] = input("Nowy typ: ").lower().strip()
             elif edit_choice == "data":
-                transaction["transaction_date"] = input("Nowa data: ")
+                transaction["transaction_date"] = input("Nowa data: ").strip()
                 break
             else:
                 print("Nie ma takiej wartości!")
@@ -118,9 +119,10 @@ while True:
     print("4. Edytuj transakcję.")
     print("5. Pokaż wszystkie wpłaty.")
     print("6. Pokaż wszystkie wydatki.")
+    print("7. Pokaż stan konta.")
     print("0. Zakończ.")
 
-    user_choice = int(input("Którą opcję wybierasz?: "))
+    user_choice = int(input("Którą opcję wybierasz?: \n"))
 
     if user_choice == 1:
         add_transaction()
@@ -137,6 +139,8 @@ while True:
         show_incomes()
     elif user_choice == 6:
         show_expenses()
+    elif user_choice == 7:
+        show_balance()
     elif user_choice == 0:
         break
     else:
