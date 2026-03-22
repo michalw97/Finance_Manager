@@ -20,6 +20,8 @@ def add_transaction():
     category_type = input("Podaj kategorię: ").strip()
     transaction_type = input("Podaj typ transakcji('wpłata'/'wydatek'): ").lower().strip()
     transaction_date = input("Podaj datę: ").strip()
+    print("Dodano transakcje.")
+    print()
 
     transaction = {
         "id": new_id,
@@ -51,6 +53,8 @@ def delete_transaction():
         if transaction["id"] == delete:
             transactions.remove(transaction)
             found = True
+            print("Transakcja usunięta.")
+            print()
             break
     if not found:
         print("Transakcja nie istnieje!")
@@ -64,16 +68,30 @@ def edit_transaction():
             if edit_choice == "całość":
                 transaction["amount"] = float(input("Nowa kwota: ").strip())
                 transaction["category_type"] = input("Nowa kategoria: ").strip()
-                transaction["transaction_type"] = input("Nowy typ: ").lower().strip()
+                transaction["transaction_type"] = input("Nowy typ('wpłata'/'wydatek'): ").lower().strip()
                 transaction["transaction_date"] = input("Nowa data: ").strip()
+                print("Zmieniono całość.")
+                print()
+                break
             elif edit_choice == "kwota":
                 transaction["amount"] = float(input("Nowa kwota: ").strip())
+                print("Zmieniono kwotę.")
+                print()
+                break
             elif edit_choice == "kategoria":
                 transaction["category_type"] = input("Nowa kategoria: ").strip()
+                print("Zmieniono kategorię.")
+                print()
+                break
             elif edit_choice == "typ":
-                transaction["transaction_type"] = input("Nowy typ: ").lower().strip()
+                transaction["transaction_type"] = input("Nowy typ('wpłata'/'wydatek'): ").lower().strip()
+                print("Zmieniono typ.")
+                print()
+                break
             elif edit_choice == "data":
                 transaction["transaction_date"] = input("Nowa data: ").strip()
+                print("Zmieniono datę.")
+                print()
                 break
             else:
                 print("Nie ma takiej wartości!")
@@ -109,6 +127,7 @@ def show_balance():
         elif transaction["transaction_type"] == "wydatek":
             total_balance -= transaction["amount"]
     print(f"Suma Twoich wpłat i wydatków: {total_balance}")
+    print()
 
 load_data()
 
@@ -121,8 +140,10 @@ while True:
     print("6. Pokaż wszystkie wydatki.")
     print("7. Pokaż stan konta.")
     print("0. Zakończ.")
+    print()
 
-    user_choice = int(input("Którą opcję wybierasz?: \n"))
+    user_choice = int(input("Którą opcję wybierasz?: "))
+    print()
 
     if user_choice == 1:
         add_transaction()
