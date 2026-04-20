@@ -90,7 +90,7 @@ class JsonTransactionRepository:
             tmp.flush()
             os.fsync(tmp.fileno())
             tmp_path = Path(tmp.name)
-        os.replace(tmp_path, self._path)
+        tmp_path.replace(self._path)
 
     def add(self, transaction: Transaction) -> Transaction:
         current = self._read()

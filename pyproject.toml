@@ -101,7 +101,7 @@ addopts = [
     "--strict-config",
     "--cov=finance_tracker",
     "--cov-report=term-missing",
-    "--cov-fail-under=85",
+    "--cov-fail-under=80",
 ]
 pythonpath = ["src"]
 

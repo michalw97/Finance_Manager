@@ -30,7 +30,7 @@ from uuid import UUID, uuid4
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from finance_tracker.domain.enums import TransactionKind
+from finance_tracker.domain.enums import TransactionKind  # noqa: TC001
 
 MONEY_FIELD = Annotated[
     Decimal,

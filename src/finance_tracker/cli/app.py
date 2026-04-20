@@ -52,11 +52,15 @@ def _bootstrap(ctx: typer.Context) -> None:
 
 
 def _service(ctx: typer.Context) -> TransactionService:
-    return ctx.obj["service"]
+    service = ctx.obj["service"]
+    assert isinstance(service, TransactionService)
+    return service
 
 
 def _currency(ctx: typer.Context) -> str:
-    return ctx.obj["settings"].currency
+    settings = ctx.obj["settings"]
+    assert isinstance(settings, Settings)
+    return settings.currency
 
 
 # --- commands -----------------------------------------------------------------
@@ -65,24 +69,29 @@ def _currency(ctx: typer.Context) -> str:
 @app.command("add")
 def add_command(
     ctx: typer.Context,
-    amount: Annotated[Decimal, typer.Option(prompt=True, help="Amount > 0")],
+    amount: Annotated[str, typer.Option(prompt=True, help="Amount > 0")],
     category: Annotated[str, typer.Option(prompt=True)],
     kind: Annotated[TransactionKind, typer.Option(prompt=True, case_sensitive=False)],
     occurred_on: Annotated[
-        date,
+        str,
         typer.Option(
             "--date",
             prompt=True,
-            formats=["%Y-%m-%d"],
             help="ISO date, e.g. 2026-04-20",
         ),
-    ] = date.today(),
+    ] = date.today().isoformat(),
 ) -> None:
     """Create a new transaction."""
     try:
         new_tx = NewTransaction(
-            amount=amount, category=category, kind=kind, occurred_on=occurred_on
+            amount=Decimal(amount),
+            category=category,
+            kind=kind,
+            occurred_on=date.fromisoformat(occurred_on),
         )
+    except (InvalidOperation, ValueError) as exc:
+        console.print(f"[red]Invalid input:[/red] {exc}")
+        raise typer.Exit(code=2) from exc
     except ValidationError as exc:
         console.print(f"[red]Invalid input:[/red] {exc.error_count()} error(s)")
         raise typer.Exit(code=2) from exc
@@ -129,25 +138,29 @@ def delete_command(
 
 
 @app.command("edit")
-def edit_command(  # noqa: PLR0913
+def edit_command(
     ctx: typer.Context,
     transaction_id: Annotated[UUID, typer.Argument()],
-    amount: Annotated[Decimal | None, typer.Option(help="New amount")] = None,
+    amount: Annotated[str | None, typer.Option(help="New amount")] = None,
     category: Annotated[str | None, typer.Option(help="New category")] = None,
     kind: Annotated[
         TransactionKind | None,
         typer.Option(case_sensitive=False, help="New kind"),
     ] = None,
-    occurred_on: Annotated[
-        date | None, typer.Option("--date", formats=["%Y-%m-%d"])
-    ] = None,
+    occurred_on: Annotated[str | None, typer.Option("--date")] = None,
 ) -> None:
     """Partially update a transaction."""
     try:
         patch = TransactionUpdate(
-            amount=amount, category=category, kind=kind, occurred_on=occurred_on
+            amount=Decimal(amount) if amount is not None else None,
+            category=category,
+            kind=kind,
+            occurred_on=date.fromisoformat(occurred_on) if occurred_on is not None else None,
         )
         updated = _service(ctx).update(transaction_id, patch)
+    except (InvalidOperation, ValueError) as exc:
+        console.print(f"[red]Invalid input:[/red] {exc}")
+        raise typer.Exit(code=2) from exc
     except EmptyUpdateError as exc:
         console.print(f"[red]{exc}[/red]")
         raise typer.Exit(code=2) from exc
@@ -176,8 +189,20 @@ _MENU_TEXT = """\
 """
 
 
+_MENU_ACTIONS_BY_CHOICE: dict[int, str] = {
+    1: "add",
+    2: "list_all",
+    3: "delete",
+    4: "edit",
+    5: "list_income",
+    6: "list_expense",
+    7: "balance",
+}
+_MENU_EXIT_CHOICE = 0
+
+
 @app.command("menu")
-def menu_command(ctx: typer.Context) -> None:  # noqa: C901, PLR0912
+def menu_command(ctx: typer.Context) -> None:
     """Interactive menu (drop-in replacement for the legacy main.py loop)."""
     service = _service(ctx)
     currency = _currency(ctx)
@@ -186,34 +211,36 @@ def menu_command(ctx: typer.Context) -> None:  # noqa: C901, PLR0912
         console.print(_MENU_TEXT)
         choice = typer.prompt("Choose", type=int)
         console.print()
+        if choice == _MENU_EXIT_CHOICE:
+            break
+        action = _MENU_ACTIONS_BY_CHOICE.get(choice)
+        if action is None:
+            console.print("[red]Unknown option.[/red]")
+            continue
         try:
-            if choice == 1:
-                _prompt_add(service)
-            elif choice == 2:
-                render_transactions(service.list(), currency=currency)
-            elif choice == 3:
-                _prompt_delete(service)
-            elif choice == 4:
-                _prompt_edit(service)
-            elif choice == 5:
-                render_transactions(
-                    service.list(kind=TransactionKind.INCOME), currency=currency
-                )
-            elif choice == 6:
-                render_transactions(
-                    service.list(kind=TransactionKind.EXPENSE), currency=currency
-                )
-            elif choice == 7:
-                render_balance(service.balance(), currency=currency)
-            elif choice == 0:
-                break
-            else:
-                console.print("[red]Unknown option.[/red]")
+            _dispatch_menu_action(action, service, currency)
         except (ValidationError, EmptyUpdateError, TransactionNotFoundError) as exc:
             console.print(f"[red]{exc}[/red]")
         except RepositoryCorruptedError as exc:
             console.print(f"[red]Data store corrupted:[/red] {exc}")
             raise typer.Exit(code=1) from exc
+
+
+def _dispatch_menu_action(action: str, service: TransactionService, currency: str) -> None:
+    if action == "add":
+        _prompt_add(service)
+    elif action == "list_all":
+        render_transactions(service.list(), currency=currency)
+    elif action == "delete":
+        _prompt_delete(service)
+    elif action == "edit":
+        _prompt_edit(service)
+    elif action == "list_income":
+        render_transactions(service.list(kind=TransactionKind.INCOME), currency=currency)
+    elif action == "list_expense":
+        render_transactions(service.list(kind=TransactionKind.EXPENSE), currency=currency)
+    elif action == "balance":
+        render_balance(service.balance(), currency=currency)
 
 
 def _prompt_add(service: TransactionService) -> None:
